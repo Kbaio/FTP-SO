@@ -31,6 +31,12 @@ void get_remote_files(){
     while ((bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0)) > 0) {
         // Agregar un terminador nulo al final de los datos recibidos
         buffer[bytes_received] = '\0';
+        
+        //Condicion de salida
+        if (strcmp(buffer, "END_OF_TRANSMISSION") == 0) {
+            break;
+        }
+        
         // Mostrar el nombre del archivo/directorio
         printf("%s", buffer);
     }
