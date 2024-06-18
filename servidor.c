@@ -109,12 +109,6 @@ void *start_server(void *arg) {
         exit(EXIT_FAILURE);
     }
 
-    if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == -1) {
-        perror("Error al configurar el socket en modo no bloqueante");
-        close(client_socket);
-        exit(EXIT_FAILURE);
-    }
-
     // Escuchar por conexiones entrantes
     if (listen(server_socket, 10) == -1) {
         perror("Error al escuchar");
