@@ -30,9 +30,6 @@ void list_remote_files(int client_socket) {
     }
 
     closedir(dir);
-    
-    // Enviar mensaje especial para indicar el final de la transmisión
-    send(client_socket, "EOT", strlen("EOT"), 0);
 }
 
 
