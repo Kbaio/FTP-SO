@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <dirent.h>
+#include <fcntl.h>
 #include <arpa/inet.h>
 
 #define PORT 8889
@@ -31,7 +32,7 @@ void list_remote_files(int client_socket) {
     closedir(dir);
     
     // Enviar mensaje especial para indicar el final de la transmisión
-    send(client_socket, "END_OF_TRANSMISSION", strlen("END_OF_TRANSMISSION"), 0);
+    send(client_socket, "EOT", strlen("EOT"), 0);
 }
 
 
@@ -108,6 +109,12 @@ void *start_server(void *arg) {
     if (bind(server_socket, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
         perror("Error al hacer bind");
         close(server_socket);
+        exit(EXIT_FAILURE);
+    }
+
+    if (fcntl(client_socket, F_SETFL, O_NONBLOCK) == -1) {
+        perror("Error al configurar el socket en modo no bloqueante");
+        close(client_socket);
         exit(EXIT_FAILURE);
     }
 
