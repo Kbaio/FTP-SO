@@ -29,9 +29,6 @@ void list_remote_files(int client_socket) {
         }
     }
 
-    //Hacemos un shudown para dejar de enviar mensaejs
-    shutdown(client_socket,SHUT_WR);
-
     closedir(dir);
 }
 

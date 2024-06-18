@@ -7,8 +7,6 @@
 
 #define BUFFER_SIZE 1024
 
-
-
 int main() {
     pthread_t server_thread;
     pthread_create(&server_thread, NULL, start_server, NULL);

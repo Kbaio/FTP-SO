@@ -34,7 +34,7 @@ void get_remote_files(){
     FD_SET(client_socket, &readfds);
 
     // Establecer un tiempo de espera para select()
-    tv.tv_sec = 2;
+    tv.tv_sec = 5;
     tv.tv_usec = 0;
 
     // Recibir y mostrar los archivos
