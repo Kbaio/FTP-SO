@@ -29,9 +29,14 @@ void get_remote_files(){
     // Recibir y mostrar los nombres de los archivos/directorios
     printf("Archivos en el servidor:\n");
     while ((bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0)) > 0) {
+        if (strcmp(buffer, "EOT") == 0)
+        {
+            break;
+        }
+        
         // Agregar un terminador nulo al final de los datos recibidos
         buffer[bytes_received] = '\0';
-        
+
         // Mostrar el nombre del archivo/directorio
         printf("%s", buffer);
     }
