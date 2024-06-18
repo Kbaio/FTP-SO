@@ -7,6 +7,7 @@
 
 #define BUFFER_SIZE 1024
 char current_directory[BUFFER_SIZE];
+char peer_ip[16];
 
 int main() {
     pthread_t server_thread;
@@ -45,8 +46,13 @@ int main() {
         }else if (strncmp(command, "remote ls", 9) == 0) {
             // Solicitar al servidor listado de archivos
             get_remote_files();
-        }
-        else if (strncmp(command, "local cd ", 9) == 0) { // Cambiar directorio local
+        
+        }else if (strncmp(command, "get ", 4) == 0) {
+            //printf(filename);
+            command[strcspn(command, "\n")] = '\0';
+            request_file(peer_ip, command);
+        
+        }else if (strncmp(command, "local cd ", 9) == 0) { // Cambiar directorio local
             char *path = command + 9;
             path[strcspn(path, "\n")] = '\0';
             change_local_directory(path);

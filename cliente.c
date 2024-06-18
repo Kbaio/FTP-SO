@@ -83,6 +83,7 @@ void send_file(const char *filename) {
     char buffer[BUFFER_SIZE];
     ssize_t bytes_read;
 
+    //Si la conexion no existe
     if (client_socket == -1) {
         printf("No hay conexión activa. Use 'open <direccion-ip>' para iniciar una conexión.\n");
         return;
@@ -136,6 +137,39 @@ void open_connection(const char *ip_address) {
     }
 
     printf("Conexión establecida con %s\n", ip_address);
+}
+
+//solicitar el archivo al servidor
+void request_file( char *peer_ip, char *filename) {
+    int client_socket;
+    struct sockaddr_in peer_address;
+
+    client_socket = socket(AF_INET, SOCK_STREAM, 0);
+    if (client_socket < 0) {
+        perror("No se pudo crear el socket");
+        exit(EXIT_FAILURE);
+    }
+
+    peer_address.sin_family = AF_INET;
+    peer_address.sin_port = htons(PORT);
+    if (inet_pton(AF_INET, peer_ip, &peer_address.sin_addr) <= 0) {
+        perror("Dirección IP inválida");
+        close(client_socket);
+        exit(EXIT_FAILURE);
+    }
+
+    if (connect(client_socket, (struct sockaddr *)&peer_address, sizeof(peer_address)) < 0) {
+        perror("Error en connect");
+        close(client_socket);
+        exit(EXIT_FAILURE);
+    }
+
+    //hacer la solicitud al servidor y obtener archivo
+    send(client_socket, filename, strlen(filename), 0);
+    filename = filename + 4;
+    receive_file(client_socket, filename);
+
+    close(client_socket);
 }
 
 void close_connection() {

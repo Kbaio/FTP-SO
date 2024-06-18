@@ -60,6 +60,14 @@ void *handle_client(void *arg) {
             if (chdir(directory) == -1) {
                 perror("Error al cambiar de directorio");
             }
+
+        }else if(strncmp(buffer, "get ", 4) == 0){
+            //saltarse los 4 caracteres y obtener
+            //el nombre del archivo
+            char *filename = buffer + 4;
+            printf(filename);
+            get_file(client_socket, filename);
+            
         }else {
             // Si no es un comando conocido, tratarlo como nombre de archivo
             printf("Recibiendo archivo: %s\n", buffer);
