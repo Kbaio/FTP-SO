@@ -32,6 +32,24 @@ void list_remote_files(int client_socket) {
     closedir(dir);
 }
 
+void get_file(int socket, char *filename) {
+    FILE *file = fopen(filename, "rb");
+    if (!file) {
+        perror("No se encontro en este directorio archivo");
+        return;
+    }
+
+    //enviar el archivo al cliente
+    char buffer[BUFFER_SIZE];
+    size_t bytesRead;
+    while ((bytesRead = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
+        if (send(socket, buffer, bytesRead, 0) < 0) {
+            perror("Error al enviar archivo");
+            break;
+        }
+    }
+    fclose(file);
+}
 
 void *handle_client(void *arg) {
     int client_socket = *(int *)arg;
@@ -67,7 +85,7 @@ void *handle_client(void *arg) {
             char *filename = buffer + 4;
             printf(filename);
             get_file(client_socket, filename);
-            
+
         }else {
             // Si no es un comando conocido, tratarlo como nombre de archivo
             printf("Recibiendo archivo: %s\n", buffer);
