@@ -81,16 +81,12 @@ void get_remote_files(){
 void send_file(const char *filename) {
     FILE *file;
     char buffer[BUFFER_SIZE];
-    char filepath[BUFFER_SIZE];
     ssize_t bytes_read;
 
     if (client_socket == -1) {
         printf("No hay conexión activa. Use 'open <direccion-ip>' para iniciar una conexión.\n");
         return;
     }
-
-    // Construir la ruta completa al archivo
-    snprintf(filepath, sizeof(filepath), "%s/%s", current_directory, filename);
 
     // Abrir el archivo para leer
     file = fopen(filename, "rb");
