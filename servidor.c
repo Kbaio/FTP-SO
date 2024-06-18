@@ -52,7 +52,15 @@ void *handle_client(void *arg) {
         if (strcmp(buffer, "ls") == 0) {
             // Si es el comando "ls", llamar a la función correspondiente
             list_remote_files(client_socket);
-        } else {
+            
+        }else if (strncmp(buffer, "cd ", 3) == 0) {
+            // Obtener el directorio especificado
+            char *directory = buffer + 3;
+            directory[strcspn(directory, "\n")] = '\0'; // Eliminar el salto de línea
+            if (chdir(directory) == -1) {
+                perror("Error al cambiar de directorio");
+            }
+        }else {
             // Si no es un comando conocido, tratarlo como nombre de archivo
             printf("Recibiendo archivo: %s\n", buffer);
             // Abrir el archivo para escribir
@@ -82,7 +90,6 @@ void *handle_client(void *arg) {
     printf("Conexión cerrada por el cliente\n");
     return NULL;
 }
-
 
 
 void *start_server(void *arg) {

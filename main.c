@@ -6,6 +6,7 @@
 #include "servidor.c"
 
 #define BUFFER_SIZE 1024
+char current_directory[BUFFER_SIZE];
 
 int main() {
     pthread_t server_thread;
@@ -45,6 +46,18 @@ int main() {
             // Solicitar al servidor listado de archivos
             get_remote_files();
         }
+        else if (strncmp(command, "local cd ", 9) == 0) { // Cambiar directorio local
+            char *path = command + 9;
+            path[strcspn(path, "\n")] = '\0';
+            change_local_directory(path);
+        }else if (strncmp(command, "remote cd ", 9) == 0) {
+            // Extraer el directorio del comando
+            char *directory = command + 7; // El índice 7 para omitir "remote "
+            directory[strcspn(directory, "\n")] = '\0'; // Eliminar el salto de línea
+
+            // Llamar a la función para cambiar el directorio remoto
+            remote_cd(directory);
+}
         else {
             printf("Comando no reconocido: %s\n", command);
         }

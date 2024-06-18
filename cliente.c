@@ -9,10 +9,28 @@
 #define BUFFER_SIZE 1024
 
 int client_socket = -1;  // Socket del cliente global para manejar la conexión actual
-
+char current_directory[BUFFER_SIZE];
 
 void list_local_files() {
     system("ls");
+}
+
+void change_local_directory(const char *path) {
+    if (chdir(path) == 0) {
+        printf("Directorio cambiado a: %s\n", path);
+    } else {
+        perror("Error al cambiar de directorio");
+    }
+}
+
+void remote_cd(const char *directory) {
+    if (client_socket == -1) {
+        printf("No hay conexión activa. Use 'open <dirección-ip>' para iniciar una conexión.\n");
+        return;
+    }
+
+    // Enviar el comando al servidor
+    send(client_socket, directory, strlen(directory), 0);
 }
 
 void get_remote_files(){
@@ -63,6 +81,7 @@ void get_remote_files(){
 void send_file(const char *filename) {
     FILE *file;
     char buffer[BUFFER_SIZE];
+    char filepath[BUFFER_SIZE];
     ssize_t bytes_read;
 
     if (client_socket == -1) {
@@ -70,8 +89,8 @@ void send_file(const char *filename) {
         return;
     }
 
-    // Enviar el nombre del archivo
-    send(client_socket, filename, sizeof(filename), 0);
+    // Construir la ruta completa al archivo
+    snprintf(filepath, sizeof(filepath), "%s/%s", current_directory, filename);
 
     // Abrir el archivo para leer
     file = fopen(filename, "rb");
@@ -79,6 +98,9 @@ void send_file(const char *filename) {
         perror("Error al abrir el archivo");
         return;
     }
+
+    // Enviar el nombre del archivo
+    send(client_socket, filename, sizeof(filename), 0);
 
     // Enviar el archivo
     while ((bytes_read = fread(buffer, 1, BUFFER_SIZE, file)) > 0) {
