@@ -34,7 +34,7 @@ int main() {
             return 0;
 
         } else if (strncmp(command, "send ", 5) == 0) {
-            //Enviar archivo
+            //Enviar
             char *filename = command + 5;
             filename[strcspn(filename, "\n")] = '\0';
             send_file(filename);

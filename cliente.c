@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <sys/select.h>
 
 #define PORT 8889
 #define BUFFER_SIZE 1024
@@ -19,30 +20,43 @@ void get_remote_files(){
         printf("No hay conexión activa. Use 'open <direccion-ip>' para iniciar una conexión.\n");
         return;
     }
-    
-    // Enviar instrucción "ls" al servidor
-    send(client_socket, "ls", strlen("ls"), 0);
 
     char buffer[BUFFER_SIZE];
     ssize_t bytes_received;
+    fd_set readfds;
+    struct timeval tv;
 
-    // Recibir y mostrar los nombres de los archivos/directorios
-    printf("Archivos en el servidor:\n");
-    while ((bytes_received = recv(client_socket, buffer, BUFFER_SIZE, 0)) > 0) {
-        if (strcmp(buffer, "EOT") == 0)
-        {
+    // Enviar instrucción "ls" al servidor
+    send(client_socket, "ls", strlen("ls"), 0);
+
+    // Inicializar el conjunto de descriptores de lectura
+    FD_ZERO(&readfds);
+    FD_SET(client_socket, &readfds);
+
+    // Establecer un tiempo de espera para select()
+    tv.tv_sec = 2;
+    tv.tv_usec = 0;
+
+    // Recibir y mostrar los archivos
+    printf("Archivos en el Servidor:");
+    while (1) {
+        // Limpiar el buffer antes de recibir datos
+        memset(buffer, 0, sizeof(buffer));
+
+        // Usar select para esperar a que el socket esté listo para leer
+        int retval = select(client_socket + 1, &readfds, NULL, NULL, &tv);
+
+        if (retval == -1) {
+            perror("select()");
             break;
+        } else if (retval == 0) {
+            break;
+        } else {
+            // Hay datos disponibles para leer
+            bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+            buffer[bytes_received] = '\0';
+            printf("%s",buffer);
         }
-        
-        // Agregar un terminador nulo al final de los datos recibidos
-        buffer[bytes_received] = '\0';
-
-        // Mostrar el nombre del archivo/directorio
-        printf("%s", buffer);
-    }
-
-    if (bytes_received < 0) {
-        perror("Error al recibir datos del servidor");
     }
 }
 

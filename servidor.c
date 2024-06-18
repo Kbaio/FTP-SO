@@ -29,9 +29,8 @@ void list_remote_files(int client_socket) {
         }
     }
 
-    // Enviamos un mensaje especial para indicar el final de los datos
-    send(client_socket, "EOT", strlen("EOT"), 0);
-    send(client_socket, "\n", 1, 0);
+    //Hacemos un shudown para dejar de enviar mensaejs
+    shutdown(client_socket,SHUT_WR);
 
     closedir(dir);
 }
@@ -45,7 +44,7 @@ void *handle_client(void *arg) {
 
     while (1) {
         // Recibir comando o nombre de archivo del cliente
-        bytes_received = recv(client_socket, buffer, sizeof(buffer) - 1, 0);
+        bytes_received = recv(client_socket, buffer, sizeof(buffer), 0);
         if (bytes_received <= 0) {
             // Si se recibe 0 o un valor negativo, se cierra la conexión
             break;
