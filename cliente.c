@@ -139,6 +139,32 @@ void open_connection(const char *ip_address) {
     printf("Conexión establecida con %s\n", ip_address);
 }
 
+/*
+ * Funcion: receive_file
+ * Entradas:
+ *  socket: descriptor de socket
+ *  filename: nombre de archivo a enviar
+ * 
+ * Se encarga de recibir el archivo del servidor
+*/
+
+void receive_file(int socket, const char *filename) {
+    FILE *file = fopen(filename, "wb");
+    if (!file) {
+        perror("No se pudo abrir el archivo");
+        return;
+    }
+
+    //escribir el archivo en el directorio actual
+    char buffer[BUFFER_SIZE];
+    ssize_t bytesReceived;
+    while ((bytesReceived = recv(socket, buffer, BUFFER_SIZE, 0)) > 0) {
+        fwrite(buffer, 1, bytesReceived, file);
+    }
+    fclose(file);
+}
+
+
 //solicitar el archivo al servidor
 void request_file( char *peer_ip, char *filename) {
     int client_socket;
